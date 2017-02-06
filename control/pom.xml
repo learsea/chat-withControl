@@ -1,0 +1,172 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sibu.chat</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>control</artifactId>
+
+	<dependencies>
+		<!-- redis -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${redis.version}</version>
+		</dependency>
+
+		<!-- sms -->
+		<dependency>
+			<groupId>com.md</groupId>
+			<artifactId>com.md</artifactId>
+			<version>1.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<artifactId>common</artifactId>
+			<groupId>com.sibu.chat</groupId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<!-- redis -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${redis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.5.2.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-context</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-core</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-tx</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-aop</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>conf/filter/**</exclude>
+				</excludes>
+				<!-- 配置文件中的${}需要被过滤替换 -->
+				<filtering>true</filtering>
+			</resource>
+
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<!-- 打包mapper文件 -->
+					<include>**/*.xml</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+
+		<!-- filters指明需要过滤替换的属性值的来源 -->
+		<filters>
+			<filter>src/main/resources/conf/filter/configure.${env}.properties</filter>
+			<filter>src/main/resources/conf/filter/log4j.${env}.properties</filter>
+			<filter>src/main/resources/conf/filter/redis.${env}.properties</filter>
+		</filters>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<!-- 将spring依赖的handlers和schemas打包进去 -->
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.handlers</resource>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.schemas</resource>
+								</transformer>
+								<!-- 设置main class -->
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>com.sibu.chat.control.main.Main</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<!-- 本地开发环境 -->
+		<profile>
+			<id>dev</id>
+			<activation>
+				<!-- 默认是本地环境 -->
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<!-- 开发环境激活时，设置变量env为dev。因此filters中所有${env}被替换成dev -->
+			<properties>
+				<env>dev</env>
+			</properties>
+		</profile>
+		<profile>
+			<id>test</id>
+			<!-- 测试203 -->
+			<properties>
+				<env>test</env>
+			</properties>
+		</profile>
+		<!-- 生产环境 -->
+		<profile>
+			<id>pro</id>
+			<properties>
+				<env>pro</env>
+			</properties>
+		</profile>
+	</profiles>
+</project>

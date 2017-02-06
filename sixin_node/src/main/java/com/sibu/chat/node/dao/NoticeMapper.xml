@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sibu.chat.node.dao.NoticeDao">
+	<insert id="save" parameterType="notice">
+		insert into skt_notice
+		(type,operator_uid,related_uids ,related_gid
+		,user_id,createtime,content) values
+		(#{type},#{operatorUid},#{relatedUids},#{relatedGid},#{userId},#{createtime},#{content});
+	</insert>
+	<select id="getNoticesByUserId" parameterType="int" resultMap="notice">
+		select * from skt_notice where user_id = #{userId};
+	</select>
+	<delete id="delNoticeByUserId" parameterType="int">
+		delete from
+		skt_notice
+		where user_id = #{userId};
+	</delete>
+
+	<resultMap type="notice" id="notice">
+		<result column="user_id" property="userId" />
+		<result column="operator_uid" property="operatorUid" />
+		<result column="related_uids" property="relatedUids" />
+		<result column="related_gid" property="relatedGid" />
+	</resultMap>
+</mapper>

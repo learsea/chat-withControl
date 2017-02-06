@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sibu.chat</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>ios_push</artifactId>
+
+	<dependencies>
+		<dependency>
+			<artifactId>common</artifactId>
+			<groupId>com.sibu.chat</groupId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<!-- 本地开发环境 -->
+		<profile>
+			<id>dev</id>
+			<activation>
+				<!-- 默认是本地环境 -->
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+
+		<!-- 测试 -->
+		<profile>
+			<id>test</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<excludes>
+							<exclude>log4j.properties</exclude>
+						</excludes>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+
+		<!-- 生产环境 -->
+		<profile>
+			<id>pro</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<excludes>
+							<exclude>log4j.properties</exclude>
+						</excludes>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+	</profiles>
+</project>

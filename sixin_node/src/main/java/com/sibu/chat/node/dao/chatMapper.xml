@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sibu.chat.node.dao.ChatDao">
+	<!-- 根据用户id获取未读单聊记录 -->
+	<select id="getLimitOne2OneRecordsByUserId" resultMap="record">
+		select
+		skt_record.*,skt_user.name from skt_record ,skt_user where listener_id
+		= #{id}
+		and
+		group_id is null and skt_user.id = skt_record.talker_id
+		order by time
+		asc
+		LIMIT #{limit} ;
+	</select>
+
+	<!-- 获取单聊记录条数 -->
+	<select id="getOne2OneRecordsCountByUserId" resultType="Integer">
+		select
+		count(*) from skt_record where listener_id = #{id} and group_id is
+		null ;
+	</select>
+
+	<!--根据用户id删除单聊记录 -->
+	<delete id="delLimitOne2OneRecordsByUserId">
+		delete from skt_record where listener_id = #{id} and
+		group_id is null order by time DESC LIMIT #{limit};
+	</delete>
+
+	<!--根据用户id删除所有单聊记录 -->
+	<delete id="delAllOne2OneRecordsByUserId">
+		delete from skt_record where listener_id = #{id} and
+		group_id is null ;
+	</delete>
+
+	<!-- 根据用户id获取未读群聊记录 -->
+	<select id="getLimitGroupRecordsByUserId" resultMap="record">
+		select
+		skt_record.*,skt_user.name
+		from skt_record,skt_user where
+		listener_id =
+		#{id}
+		and
+		group_id is not null and skt_user.id = skt_record.talker_id
+		order by
+		time asc
+		LIMIT #{limit} ;
+	</select>
+
+	<!-- 获取群聊记录条数 -->
+	<select id="getGroupRecordsCountByUserId" resultType="Integer">
+		select
+		count(*) from skt_record where listener_id = #{id} and group_id is not
+		null
+		;
+	</select>
+
+	<!--根据用户id删除群聊记录 -->
+	<delete id="delLimitGroupRecordsByUserId">
+		delete
+		from skt_record
+		where listener_id = #{id} and
+		group_id is not null order by time DESC LIMIT #{limit};
+	</delete>
+
+	<!--根据用户id删除所有群聊记录 -->
+	<delete id="delAllGroupRecordsByUserId">
+		delete
+		from skt_record where listener_id = #{id} and
+		group_id is not null ;
+	</delete>
+
+	<!--根据用户id删除所有群聊记录 -->
+	<delete id="delAllGroupRecordsByGroupId">
+		delete from skt_record where group_id = #{groupId};
+	</delete>
+	<!-- 保存聊天记录 -->
+	<insert id="saveRecord" parameterType="record">
+		insert into
+		skt_record(talker_id,listener_id,time,content,group_id)
+		values
+		(#{talkerId},#{listenerId},#{time},#{content},#{groupId});
+	</insert>
+
+	<!-- 撤销单聊消息 -->
+	<delete id="recall">
+		delete from skt_record where talker_id = #{tid} and
+		listener_id = #{lid} and msgid=#{mid};
+	</delete>
+
+	<!-- 撤销群聊消息 -->
+	<delete id="recallG">
+		delete from skt_record where talker_id = #{tid} and
+		group_id = #{gid} and msgid= #{mid};
+	</delete>
+
+	<insert id="saveRecordLog" parameterType="record">
+		insert into
+		skt_record_alllog(talker_id,listener_id,time,content,group_id)
+		values
+		(#{talkerId},#{listenerId},#{time},#{content},#{groupId});
+	</insert>
+
+	<resultMap type="record" id="record">
+		<result column="talker_id" property="talkerId" />
+		<result column="listener_id" property="listenerId" />
+		<result column="group_id" property="groupId" />
+	</resultMap>
+</mapper>

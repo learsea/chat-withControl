@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sibu.chat.node.dao.GroupDao">
+	<!-- 根据群id查询是否存在该群 -->
+	<select id="existGroup" parameterType="int" resultType="int">
+		select
+		count(*) from
+		skt_chat_group where group_id = #{groupId};
+	</select>
+
+	<!-- 新建群 -->
+	<insert id="newGroup" parameterType="chatGroup"
+		useGeneratedKeys="true" keyProperty="groupId">
+		insert into skt_chat_group
+		(group_name,icon) values
+		(#{groupName},#{icon});
+	</insert>
+
+	<!-- 根据用户id查询用户所在的群 -->
+	<select id="getGroups" parameterType="int" resultType="map">
+		select
+		skt_chat_group.* from skt_chat_group,skt_group_user where
+		skt_chat_group.group_id =
+		skt_group_user.group_id and skt_group_user.user_id =
+		#{uid};
+	</select>
+
+	<!-- 解散群 -->
+	<delete id="dropGroup" parameterType="chatGroup">
+		delete from skt_chat_group
+		where group_id = #{groupId};
+	</delete>
+
+	<!-- 修改群信息 -->
+	<update id="alterGroup" parameterType="chatGroup">
+		update skt_chat_group
+		<set>
+			<if test="groupName != null">
+				group_name = #{groupName},
+			</if>
+			<if test="icon != null">
+				icon = #{icon},
+			</if>
+			group_id = group_id
+		</set>
+		<where>
+			<choose>
+				<when test="groupId != null">
+					group_id = #{groupId};
+				</when>
+				<otherwise>
+					0=1;
+				</otherwise>
+			</choose>
+		</where>
+	</update>
+
+	<!-- 添加一批群用户 -->
+	<insert id="addGroupUsers">
+		insert into skt_group_user (group_id,user_id,admin) values
+		<foreach collection="list" index="index" item="item"
+			separator=",">
+			(#{item.groupId},#{item.userId},#{item.admin})
+		</foreach>
+		;
+	</insert>
+
+	<!-- 添加一个群用户 -->
+	<insert id="addGroupUser" parameterType="groupUser">
+		insert into skt_group_user
+		(group_id,user_id,admin) values (#{groupId},#{userId},#{admin}) ;
+	</insert>
+
+	<!-- 删除群用户 -->
+	<delete id="delGroupUser">
+		delete from skt_group_user
+		where user_id = #{userId}
+		and
+		group_id = #{groupId};
+	</delete>
+
+	<delete id="delGroupUsersByGroupId">
+		delete from skt_group_user where group_id = #{groupId};
+	</delete>
+
+	<!-- 获取群用户信息 -->
+	<select id="getGroupUsesByGroupId" resultMap="groupUser">
+		select *
+		from
+		skt_group_user where group_id =
+		#{groupId} order by auto_id;
+	</select>
+
+	<!-- 获取群用户信息id -->
+	<select id="getGroupUsesIdsByGroupId" resultType="int">
+		select user_id
+		from
+		skt_group_user where group_id =
+		#{groupId};
+	</select>
+
+	<select id="getChatGroupByGroupId" resultMap="chatGroup">
+		select * from
+		skt_chat_group where group_id = #{groupId};
+	</select>
+
+	<resultMap type="chatGroup" id="chatGroup">
+		<result column="group_id" property="groupId" />
+		<result column="group_name" property="groupName" />
+	</resultMap>
+
+	<resultMap type="groupUser" id="groupUser">
+		<result column="group_id" property="groupId" />
+		<result column="user_id" property="userId" />
+	</resultMap>
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc  
+                http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+                http://www.springframework.org/schema/beans 
+                http://www.springframework.org/schema/beans/spring-beans.xsd  
+                http://www.springframework.org/schema/tx 
+                http://www.springframework.org/schema/tx/spring-tx.xsd  
+                http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context.xsd
+                http://www.springframework.org/schema/aop
+				http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 配置spring bean的扫描包 -->
+	<context:component-scan base-package="com.sibu.chat" />
+
+	<!-- 使用@aspectj注解 -->
+	<aop:aspectj-autoproxy />
+
+	<!-- 处理request请求映射,注入的bean用来解决responseBody返回乱码问题 -->
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<!-- 配置事物管理器 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 开启事物注解,不使用cglib代理。在 <tx:annotation-driven/>, <aop:aspectj-autoproxy/> 
+		or <aop:config/>三个中任意一个设置 proxy-target-class="true"，都会设使三个强制使用cglib -->
+	<tx:annotation-driven transaction-manager="txManager" />
+
+
+	<!-- properties配置文件位置，可以注释掉了因为${}已在打包时被替换成对应值 -->
+	<!-- properties配置文件位置 -->
+	<context:property-placeholder location="classpath:conf/*/*.properties" />
+
+	<!-- 静态资源位置 -->
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+
+	<!-- jsp文件位置 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+	<!-- jedis配置 -->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+	</bean>
+
+	<!-- 数据库15专门用来存储ip——id映射，在启动中控时，需要清空该数据库 -->
+	<bean id="ipIdconnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:hostName="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"
+		p:poolConfig-ref="poolConfig" p:database="15" />
+
+	<bean id="ipIdRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="ipIdconnectionFactory" />
+	</bean>
+
+	<bean id="connectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:hostName="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"
+		p:poolConfig-ref="poolConfig" p:database="0" />
+
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>
+
+
+	<!-- c3p0数据源及连接池配置 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+		<!-- 最小连接数 -->
+		<property name="minPoolSize" value="${jdbc.minPoolSize}"></property>
+		<!-- 最大连接数 -->
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}"></property>
+		<!-- 初始化连接数 -->
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}"></property>
+		<!-- 连接耗尽后，一次性获取的新连接数 -->
+		<property name="acquireIncrement" value="${jdbc.acquireIncrement}"></property>
+		<!-- 最大空闲时间60*30秒(0.5小时)，内不使用则丢弃 -->
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}"></property>
+		<!-- 超过最长连接时间将被摧毁180秒 -->
+		<property name="maxConnectionAge" value="${jdbc.maxConnectionAge}" />
+		<!-- 每个连接的最大PreparedStatements缓存数。设置为频繁使用的PreparedStatements数再加2-3 -->
+		<property name="maxStatementsPerConnection" value="${jdbc.maxStatementsPerConnection}" />
+		<!-- 最大PreparedStatements缓存数。设置为maxStatementsPerConnection乘以maxPoolSize -->
+		<property name="maxStatements" value="${jdbc.maxStatements}" />
+	</bean>
+
+	<!-- 配置mybatis的sessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!--dataSource属性指定要用到的连接池 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描所有*mapper.xml文件，也可以在mybatis配置文件中一一配置 -->
+		<property name="mapperLocations" value="classpath:com/sibu/chat/node/dao/*.xml" />
+		<!-- 扫描bean类，为bean增加别名，也可以在mybatis配置文件中一一配置 -->
+		<property name="typeAliasesPackage" value="com.sibu.chat.common.bean" />
+		<!-- mybatis配置文件 -->
+		<property name="configLocation" value="classpath:conf/mybatis/configuration.xml" />
+	</bean>
+
+	<!--自动扫描mapper类，生成dao代理类。不需要使用MapperFactoryBean一一注册dao类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.sibu.chat.node.dao" />
+	</bean>
+</beans> 

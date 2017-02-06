@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sibu.chat.node.dao.FriendDao">
+	<insert id="addFriend">
+		insert into sixin_friend (uid,fid)
+		values(#{uid},#{fid});
+	</insert>
+
+	<delete id="delFriend">
+		delete from sixin_friend where (uid = #{uid} and fid
+		=
+		#{fid}) or (uid = #{fid} and fid = #{uid});
+	</delete>
+
+	<select id="isFriend" resultType="int">
+		select count(*) from
+		sixin_friend where uid=#{id}
+		and fid=#{fid};
+	</select>
+
+	<!-- 一下两个查询合一起才是查询好友 -->
+	<select id="getFriends" resultType="int">
+		select fid from
+		sixin_friend
+		where uid=#{id};
+	</select>
+
+	<select id="getRemark" resultType="String">
+		select remark from
+		sixin_friend where uid=#{lid} and fid=#{tid};
+	</select>
+
+	<select id="getBids" resultType="String">
+		select bids from sixin_friend
+		where uid = #{id};
+	</select>
+
+	<update id="updateBlacklist">
+		update sixin_user set bids = #{bids} where id =#{id};
+	</update>
+</mapper>

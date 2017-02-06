@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                http://www.springframework.org/schema/beans/spring-beans.xsd  
+                http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context.xsd
+                http://www.springframework.org/schema/aop
+				http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 配置spring bean的扫描包 -->
+	<context:component-scan base-package="com.sibu.chat" />
+
+	<!-- 使用@aspectj注解 -->
+	<aop:aspectj-autoproxy />
+
+	<!-- properties配置文件位置，这里注释掉了因为${}已在打包时被替换成对应值 -->
+	<!--<context:property-placeholder location="classpath*:conf/*/*.properties" 
+		/> -->
+
+	<!-- jedis配置 -->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+	</bean>
+
+	<!-- 数据库15专门用来存储ip——id映射，在启动中控时，需要清空该数据库 -->
+	<bean id="ipIdconnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:hostName="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"
+		p:poolConfig-ref="poolConfig" p:database="15" />
+
+	<bean id="ipIdRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="ipIdconnectionFactory" />
+	</bean>
+</beans> 

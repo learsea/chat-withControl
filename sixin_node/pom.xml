@@ -1,0 +1,207 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sibu.chat</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>sixin_node</artifactId>
+	<packaging>war</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5</version>
+		</dependency>
+		<!-- redis -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${redis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.5.2.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-context</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-core</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-tx</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-aop</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<artifactId>ios_push</artifactId>
+			<groupId>com.sibu.chat</groupId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<artifactId>common</artifactId>
+			<groupId>com.sibu.chat</groupId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>6.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.30</version>
+		</dependency>
+		<dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.2.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+
+		<!-- spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>conf/filter/**</exclude>
+				</excludes>
+				<!-- 配置文件中的${}需要被过滤替换 -->
+				<filtering>true</filtering>
+			</resource>
+
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<!-- 打包mapper文件 -->
+					<include>**/*.xml</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+
+		<!-- filters指明需要过滤替换的属性值的来源 -->
+		<filters>
+			<filter>src/main/resources/conf/filter/configure.${env}.properties</filter>
+			<filter>src/main/resources/conf/filter/applicationContext.${env}.properties</filter>
+			<filter>src/main/resources/conf/filter/redis.${env}.properties</filter>
+			<filter>src/main/resources/conf/filter/log4j.${env}.properties</filter>
+		</filters>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.1.1</version>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>src/main/webapp</directory>
+							<filtering>true</filtering>
+						</resource>
+					</webResources>
+					<source>7</source>
+					<target>7</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>8.0.0.M3</version>
+				<configuration>
+					<scanIntervalSeconds>0</scanIntervalSeconds>
+					<connectors>
+						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+							<port>9899</port>
+							<maxIdleTime>60000</maxIdleTime>
+						</connector>
+					</connectors>
+					<webAppConfig>
+						<contextPath>/</contextPath>
+					</webAppConfig>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<!-- 本地开发环境 -->
+		<profile>
+			<id>dev</id>
+			<activation>
+				<!-- 默认是本地环境 -->
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<!-- 开发环境激活时，设置变量env为dev。因此filters中所有${env}被替换成dev -->
+			<properties>
+				<env>dev</env>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>test</id>
+			<!-- 测试 -->
+			<properties>
+				<env>test</env>
+			</properties>
+		</profile>
+
+		<!-- 生产环境 -->
+		<profile>
+			<id>pro</id>
+			<properties>
+				<env>pro</env>
+			</properties>
+		</profile>
+	</profiles>
+</project> 

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE RelativeLayout>
+<apnsconf>
+	<apns>
+		<!-- 项目名 -->
+		<name>ShouQuanDev</name>
+		<!-- 密码 -->
+		<password>abc123</password>
+		<!-- 文件名 -->
+		<path>ShouQuanDev.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>true</isDevEnv>
+	</apns>
+	<apns>
+		<!-- 项目名 -->
+		<name>ShouQuanPro</name>
+		<!-- 密码 -->
+		<password>abc123</password>
+		<!-- 文件名 -->
+		<path>ShouQuanPro.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>false</isDevEnv>
+	</apns>
+
+	<apns>
+		<!-- 项目名 -->
+		<name>KuaiGouDev</name>
+		<!-- 密码 -->
+		<password>abc123</password>
+		<!-- 文件名 -->
+		<path>KuaiGouDev.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>true</isDevEnv>
+	</apns>
+	<apns>
+		<!-- 项目名 -->
+		<name>KuaiGouPro</name>
+		<!-- 密码 -->
+		<password>abc123</password>
+		<!-- 文件名 -->
+		<path>KuaiGouPro.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>false</isDevEnv>
+	</apns>
+
+	<apns>
+		<!-- 项目名 -->
+		<name>SiXinDev</name>
+		<!-- 密码 -->
+		<password>abc123</password>
+		<!-- 文件名 -->
+		<path>SiXinDev.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>true</isDevEnv>
+	</apns>
+	<apns>
+		<!-- 项目名 -->
+		<name>SiXinPro</name>
+		<!-- 密码 -->
+		<password>abc123</password>
+		<!-- 文件名 -->
+		<path>SiXinPro.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>false</isDevEnv>
+	</apns>
+
+	<apns>
+		<!-- 项目名 -->
+		<name>NewSiXinDev</name>
+		<!-- 密码 -->
+		<password>wangfeng</password>
+		<!-- 文件名 -->
+		<path>NewSiXinDev.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>true</isDevEnv>
+	</apns>
+	<apns>
+		<!-- 项目名 -->
+		<name>NewSiXinPro</name>
+		<!-- 密码 -->
+		<password>wangfeng</password>
+		<!-- 文件名 -->
+		<path>NewSiXinPro.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>false</isDevEnv>
+	</apns>
+	
+	<apns>
+		<!-- 项目名 -->
+		<name>XianhuaDev</name>
+		<!-- 密码 -->
+		<password>wangfeng</password>
+		<!-- 文件名 -->
+		<path>XianhuaDev.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>true</isDevEnv>
+	</apns>
+	<apns>
+		<!-- 项目名 -->
+		<name>XianhuaPro</name>
+		<!-- 密码 -->
+		<password>wangfeng</password>
+		<!-- 文件名 -->
+		<path>XianhuaPro.p12</path>
+		<!-- 是否开发模式 -->
+		<isDevEnv>false</isDevEnv>
+	</apns>
+</apnsconf>

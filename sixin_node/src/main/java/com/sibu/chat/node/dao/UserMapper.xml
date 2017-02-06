@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sibu.chat.node.dao.UserDao">
+	<!-- 根据用户名获取用户 -->
+	<select id="getUserById" parameterType="int" resultMap="user">
+		select *
+		from skt_user where id = #{id};
+	</select>
+
+	<!-- 保存用户 -->
+	<insert id="saveUser" parameterType="user" useGeneratedKeys="true"
+		keyProperty="autoId">
+		insert into skt_user
+		(id,client_type,device_token,app_name,login_time,name,is_push) values
+		(#{id},#{clientType},#{deviceToken},#{appName},#{loginTime},#{name},#{needPush});
+	</insert>
+	<!-- 保存用户日志 -->
+	<insert id="saveUserLog" parameterType="user">
+		insert into user_alllog
+		(id,client_type,device_token,app_name,login_time,name,is_push) values
+		(#{id},#{clientType},#{deviceToken},#{appName},#{loginTime},#{name},#{needPush});
+	</insert>
+
+	<!-- 跟新用户 -->
+	<update id="updateUser" parameterType="user">
+		update skt_user
+		<set>
+			<if test="clientType != null">
+				client_type = #{clientType},
+			</if>
+			<if test="deviceToken != null">
+				device_token = #{deviceToken},
+			</if>
+			<if test="loginTime != null">
+				login_time = #{loginTime},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="needPush != null">
+				is_push = #{needPush},
+			</if>
+			<if test="badge != null">
+				badge = #{badge},
+			</if>
+			<if test="appName != null">
+				app_name = #{appName},
+			</if>
+			<if test="clientType != null">
+				client_type = #{clientType},
+			</if>
+			id=id
+		</set>
+		<where>
+			<choose>
+				<when test="id != null">
+					id = #{id};
+				</when>
+				<otherwise>
+					0=1
+				</otherwise>
+			</choose>
+		</where>
+	</update>
+
+	<!-- 删除用户 -->
+	<delete id="deleteUser" parameterType="String">
+		delete from skt_user where
+		id
+		= #{id};
+	</delete>
+
+	<select id="getSinXinName" resultType="String">
+		select name from
+		skt_user
+		where id = #{tid};
+	</select>
+
+	<resultMap type="user" id="user">
+		<id column="auto_id" property="autoId" />
+		<result column="client_type" property="clientType" />
+		<result column="device_token" property="deviceToken" />
+		<result column="app_name" property="appName" />
+		<result column="login_time" property="loginTime" />
+		<result column="is_push" property="needPush" />
+		<result column="is_dev" property="dev" />
+	</resultMap>
+</mapper>
